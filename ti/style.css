@@ -1,0 +1,109 @@
+:root {
+    --bg-color: #0a0f1f;            
+    --secondary-color: #4f46e5;   
+    --primary-color: #6366f1;       
+}
+
+*{
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+.AulaForm {
+width: 350px;
+padding: 15px;
+}
+
+.sensor {
+    background-color: #93baff;
+}
+
+.atuador {
+    background-color: #ffbf6c;
+}
+html{
+    width: 100%;
+    height: 100%;
+}
+
+body{
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+}
+
+.form-label{
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+input{
+    background-color: var(--input-color) !important;
+    width: 100%;
+    display: block;
+    border: 1px solid white;
+    border-radius: 5px;
+    height: 50px;
+    padding: 5px;
+    color: white !important;
+}
+input::placeholder {
+    color: #94a3b8;
+}
+
+form{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border: 1px solid var(--primary-color); 
+    background: linear-gradient( 135deg, #0a0f1f, #0f172a, #111c33);
+    padding: 10px;
+    border-radius: 10px;
+    gap: 20px;
+    width: 400px;
+}
+
+button{
+    background-color: var(--primary-color) !important;
+    font-weight: bolder;
+    padding: 10px;
+    border: 1px solid white;
+    border-radius: 15px;
+    color: black;
+}
+
+.error{
+    background-color: #ff8181;
+    padding: 20px;
+    border-radius: 10px;
+    font-weight: bold;
+    position: absolute;
+    top: 40px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
