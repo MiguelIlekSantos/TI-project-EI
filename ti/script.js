@@ -16,10 +16,10 @@ const logBody = document.getElementById("logBody")
 
 var buttonsFlag = 0;
 
-// const urlGet = "http://iot.dei.estg.ipleiria.pt/ti/ti022/ti/api/api.php?nome="
-// const urlPost = "http://iot.dei.estg.ipleiria.pt/ti/ti022/ti/api/api.php"
-const urlGet = "http://localhost/ti/api/api.php?nome="
-const urlPost = "http://localhost/ti/api/api.php"
+const urlGet = "http://iot.dei.estg.ipleiria.pt/ti/ti022/ti/api/api.php?nome="
+const urlPost = "http://iot.dei.estg.ipleiria.pt/ti/ti022/ti/api/api.php"
+// const urlGet = "http://localhost/ti/api/api.php?nome="
+// const urlPost = "http://localhost/ti/api/api.php"
 
 function updateLog(reqType, nome, valor, hora) {
     const row = `
@@ -349,9 +349,9 @@ async function loadPriorityState() {
 
 loadPriorityState()
 
-refreshInfo()
-// setInterval(() => {
-// }, 1000)
+setInterval(() => {
+    refreshInfo()
+}, 3000)
 
 
 

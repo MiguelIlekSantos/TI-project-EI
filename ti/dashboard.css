@@ -87,5 +87,19 @@ th{
 }
 
 
+.linkHistorico{
+    margin-left: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100px;
+    height: 100%;
+    border-radius: 10px;
+    background-color: var(--secondary-color);
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+}
+
 
 

@@ -11,7 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    echo 'Nome do sensor : ' . $_POST['nome'];
 
     $nomeSensor = $_POST['nome'];
     $hora = $_POST['hora'];
@@ -28,18 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "Modo atualizado";
         exit;
     }
-
-    echo "[LOG] New POST request\n";
-    echo "[TIME] " . date('Y-m-d H:i:s') . "\n";
-    echo "[IP] " . $_SERVER['REMOTE_ADDR'] . "\n";
-
-    echo "[DATA] nome=" . ($_POST['nome'] ?? 'NULL') . "\n";
-    echo "[DATA] valor=" . ($_POST['valor'] ?? 'NULL') . "\n";
-    echo "[DATA] hora=" . ($_POST['hora'] ?? 'NULL') . "\n";
-    echo "[DATA] dashboard=" . ($_POST['dashboard'] ?? 'NULL') . "\n";
-    echo "[DATA] priority=" . ($_POST['priority'] ?? 'NULL') . "\n";
-
-    echo "----------------------\n";
 
     $priority = file_get_contents($pastaFiles . '/priorityMode.txt');
 
@@ -103,6 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     file_put_contents($ficheiroValor, $valor);
     file_put_contents($ficheiroNome, $nomeSensor);
     file_put_contents($ficheiroHora, $hora);
+    addHistory($nomeSensor, $valor, $hora);
 
     http_response_code(200);
     echo 'Operação bem sucedida';
@@ -116,6 +104,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($nomeSensor == "priority") {
             // echo 'Link : ' . $pastaFiles . $nomeSensor;
             $valor = file_get_contents($pastaFiles . 'priorityMode.txt');
+            echo $valor;
+            http_response_code(200);
+            exit;
+        }
+
+        if ($nomeSensor == "historico") {
+            // echo 'Link : ' . $pastaFiles . $nomeSensor;
+            $valor = file_get_contents($pastaFiles . 'historico.txt');
             echo $valor;
             http_response_code(200);
             exit;
@@ -152,6 +148,8 @@ function changeState($atuador, $state, $hora)
     $pastaFiles = __DIR__ . '/files/';
     file_put_contents($pastaFiles . $atuador . '/valor.txt', $state);
     file_put_contents($pastaFiles . $atuador . '/hora.txt', $hora);
+
+    addHistory($atuador, $state, $hora);
 }
 
 function updateData()
@@ -178,6 +176,14 @@ function updateData()
     changeState("buzzer", 0, $horaButton);
 
 
+}
+
+function addHistory($sensor, $valor, $hora)
+{
+    $pastaFiles = __DIR__ . '/files/';
+    $linha = $sensor . ";" . $valor . ";" . $hora . "\n";
+
+    file_put_contents($pastaFiles . "historico.txt", $linha, FILE_APPEND);
 }
 
 ?>

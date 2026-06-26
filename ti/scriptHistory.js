@@ -1,38 +1,36 @@
-const tempDiv = document.getElementById("temperatura")
-const ACStateDiv = document.getElementById("ACState")
-const rgbTempDiv = document.getElementById("rgbTemp")
-const dataTempDiv = document.getElementById("dataTemp")
-const emergencyBtnState = document.getElementById("emergencyBtnState")
-const machinesState = document.getElementById("machinesState")
-const buzzerState = document.getElementById("buzzerState")
-const emergencyBtnDate = document.getElementById("emergencyBtnDate")
-const machinesBtn = document.getElementById("machinesBtn")
-const lightStateDiv = document.getElementById("lightState")
-const lightEnvDiv = document.getElementById("lightEnv")
-const lightDateDiv = document.getElementById("lightDate")
-const enableBtn = document.getElementById("enableBtn")
-const buttons = document.getElementById("buttons")
-const logBody = document.getElementById("logBody")
+const contentTables = document.getElementById("contentTables")
+const ctx = document.getElementById('tempChart');
 
-var buttonsFlag = 0;
+const urlGet = "http://iot.dei.estg.ipleiria.pt/ti/ti022/ti/api/api.php?nome="
+const urlPost = "http://iot.dei.estg.ipleiria.pt/ti/ti022/ti/api/api.php"
+// const urlGet = "http://localhost/ti/api/api.php?nome="
+// const urlPost = "http://localhost/ti/api/api.php"
 
-// const urlGet = "http://iot.dei.estg.ipleiria.pt/ti/ti022/ti/api/api.php?nome="
-// const urlPost = "http://iot.dei.estg.ipleiria.pt/ti/ti022/ti/api/api.php"
-const urlGet = "http://localhost/ti/api/api.php?nome="
-const urlPost = "http://localhost/ti/api/api.php"
+var lastValor = {
+    analogTemp: null,
+    airConditioner: null,
+    envState: null,
+    lights: null,
+    machines: null,
+    buzzer: null,
+    button: null
+};
 
-function updateLog(reqType, nome, valor, hora) {
-    const row = `
-        <tr>
-            <td>${reqType}</td>
-            <td>${nome}</td>
-            <td>${manageValor(nome, valor)}</td>
-            <td>${hora}</td>
-        </tr>
-    `;
+var names = {
+    analogTemp: "Temperatura",
+    airConditioner: "Ar condicionado",
+    envState: "Claridade",
+    lights: "Iluminação",
+    machines: "Máquinas",
+    buzzer: "Buzzer",
+    button: "Botão de emergência"
+};
 
-    logBody.insertAdjacentHTML("afterbegin", row);
-}
+let chart;
+var listTemperaturas = []
+var listDatas = []
+
+
 
 function manageValor(nome, valor) {
 
@@ -70,7 +68,6 @@ function postRequest(nome, valor, hora) {
     })
         .then(res => res.text())
         .then(data => {
-            updateLog("POST", nome, valor, hora)
             return data;
         })
         .catch(err => console.error("Erro API:", err));
@@ -80,11 +77,6 @@ function getRequest(nome) {
     return fetch(urlGet + nome)
         .then(res => res.text())
         .then(data => {
-            if (nome != "priority") {
-                var valor = data.split(";")[0]
-                var hora = data.split(";")[1]
-                updateLog("GET", nome, valor, hora)
-            }
             return data;
         })
         .catch(err => {
@@ -105,119 +97,117 @@ function timeFormat() {
     return hora
 }
 
-async function refreshInfo() {
+function row(nome, info, hora) {
+    return `                        
+        <tr style="height: 50px;">
+            <td>${manageValor(nome, info)}</td>
+            <td>${hora}</td>
+        </tr>
+    `
+}
 
-    // refresh temp
+function table(nome, tipo) {
+    return `
+            <div class="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
+                <div class="card border-primary-color bg-linear-gradient w-100" style="max-width: 400px; height: 300px;">
+                    <div class="card-header bg-primary-color text-white">${nome}</div>
+                    <div class="card-body p-2 overflow-auto">
 
-    var values = (await getRequest("analogTemp")).split(";")
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>${tipo === "Atuador" ? "Estado" : "Valor"}</th>
+                                    <th>Hora</th>
+                                </tr>
+                            </thead>
+                            <tbody id="${nome}Tabela"></tbody>
+                        </table>
 
-    var temp = parseFloat(values[0])
-    var dataTemp = values[1]
+                    </div>
+                </div>
+            </div>
+    `
+}
 
-    tempDiv.innerHTML = temp + "ºC"
+async function loadHistory() {
 
-    if ((await getRequest("airConditioner")).split(";")[0] == 1) {
-        ACStateDiv.innerHTML = "Ligado";
-        ACStateDiv.classList.remove("bg-secondary", "bg-danger");
-        ACStateDiv.classList.add("bg-success");
-    } else {
-        ACStateDiv.innerHTML = "Desligado";
-        ACStateDiv.classList.remove("bg-success");
-        ACStateDiv.classList.add("bg-secondary");
+    for (let sensor in names) {
+        const tableId = names[sensor] + "Tabela";
+        const table = document.getElementById(tableId);
+
+        table.innerHTML = "";
     }
 
-    if (temp > 28) {
-        rgbTempDiv.innerHTML = "Quente";
-        rgbTempDiv.classList.add("bg-danger", "text-white");
-    } else if (temp > 25) {
-        rgbTempDiv.innerHTML = "Moderado";
-        rgbTempDiv.classList.add("bg-warning", "text-dark");
-    } else {
-        rgbTempDiv.innerHTML = "Fresco";
-        rgbTempDiv.classList.add("bg-info", "text-dark");
-    }
+    const data = await getRequest("historico");
 
-    dataTempDiv.innerHTML = "Atualizado :" + dataTemp
+    const lines = data.split("\n").filter(l => l.trim() !== "");
+    listTemperaturas = []
+    listDatas = []
 
+    for (let line of lines) {
 
-    // refresh light
+        const [sensor, valor, hora] = line.split(";");
 
+        const tableId = names[sensor] + "Tabela";
+        const table = document.getElementById(tableId);
 
-    var envState = (await getRequest("envState")).split(";")
-    var lightState = (await getRequest("lights")).split(";")
+        if (sensor == "analogTemp") {
+            listTemperaturas.push(valor)
+            listDatas.push(hora.split(" ")[1]);
+        }
 
-    var lightDate = lightState[1]
-
-    if (lightState[0] == 1) {
-        lightStateDiv.innerHTML = "Ligada"
-        lightStateDiv.classList.remove("bg-secondary")
-        lightStateDiv.classList.add("bg-success")
-    } else {
-        lightStateDiv.innerHTML = "Desligada"
-        lightStateDiv.classList.remove("bg-success")
-        lightStateDiv.classList.add("bg-secondary")
-    }
-
-    if (envState[0] == 1) {
-        lightEnvDiv.innerHTML = "Escuro"
-        lightEnvDiv.classList.remove("bg-warning")
-        lightEnvDiv.classList.add("bg-dark")
-    } else {
-        lightEnvDiv.innerHTML = "Claro"
-        lightEnvDiv.classList.remove("bg-dark")
-        lightEnvDiv.classList.add("bg-warning")
-    }
-
-
-
-    lightDateDiv.innerHTML = "Atualizado: " + lightDate
-
-
-    // refresh btn
-
-
-    var emgValues = (await getRequest("button")).split(";")
-
-    var state = parseInt(emgValues[0])
-    var emgDate = emgValues[1]
-
-    if (state === 1) {
-        emergencyBtnState.innerHTML = "ON"
-    } else {
-        emergencyBtnState.innerHTML = "OFF"
-    }
-
-    if (((await getRequest("machines")).split(";")[0] == 1)) {
-        machinesState.innerHTML = "Operando"
-        machinesState.classList.remove("bg-danger")
-        machinesState.classList.add("bg-success")
-    } else {
-        machinesState.innerHTML = "Parado"
-        machinesState.classList.remove("bg-success")
-        machinesState.classList.add("bg-danger")
-    }
-
-    if (((await getRequest("buzzer")).split(";")[0] == 1)) {
-        buzzerState.innerHTML = "Ligado"
-        buzzerState.classList.remove("bg-secondary")
-        buzzerState.classList.add("bg-danger")
-    } else {
-        buzzerState.innerHTML = "Desligado"
-        buzzerState.classList.remove("bg-danger")
-        buzzerState.classList.add("bg-secondary")
+        if (table) {
+            table.innerHTML += row(sensor, valor, hora);
+        }
     }
 
 
-    emergencyBtnDate.innerHTML = "Atualizado: " + emgDate
+    chart.data.labels = listDatas;
+    chart.data.datasets[0].data = listTemperaturas;
+    chart.update();
 
-    loadPriorityState()
+}
+
+function initChart() {
+    chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Temperatura (°C)',
+                data: [],
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    title: {
+                        display: true,
+                        text: '°C'
+                    }
+                }
+            }
+        }
+    });
+}
+
+for (nam in names) {
+    var name = names[nam]
+    if (name == "Temperatura" || name == "Claridade") {
+        contentTables.innerHTML += table(name, "Sensor")
+    } else {
+        contentTables.innerHTML += table(name, "Atuador")
+    }
 }
 
 
-refreshInfo()
-
-// setInterval(() => {
-// }, 1000)
+initChart();
+loadHistory();
+setInterval(() => {
+    loadHistory();
+}, 3000)
 
 
 

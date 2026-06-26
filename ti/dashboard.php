@@ -38,12 +38,16 @@ if ($_SESSION['username'] == "admin") {
     <div class="container py-4">
 
         <!-- Cabeçalho -->
-        <div class="row mb-4">
-            <div class="col-md-8">
-                <h1 style="color: white;">Dashboard</h1>
+        <div style="display:flex;flex-direction:row;">
+            <div style="display:flex;flex-direction:row;">
+                <div class="">
+                    <h1 style="color: white;">Dashboard</h1>
+                </div>
+
+                <a href="history.php" class="linkHistorico">Histórico</a>
             </div>
 
-            <div class="col-md-4 text-end">
+            <div style="display: flex;align-items: center;justify-content: right;width:100%;">
                 <div class="card border-primary-color bg-linear-gradient std-flex">
                     <div class="std-flex">
                         <div class="card-body">
@@ -56,6 +60,7 @@ if ($_SESSION['username'] == "admin") {
                 </div>
             </div>
         </div>
+        <br>
 
         <!-- Cards dos sensores -->
         <div class="row g-4 justify-content-center">
@@ -189,6 +194,17 @@ if ($_SESSION['username'] == "admin") {
                 </div>
             </div>
         <?php endif; ?>
+
+        <!-- Imagem da camerã -->
+        <div style="width: 100%;" class="d-flex justify-content-center align-items-center">
+            <div class="card mt-4 border-primary-color bg-linear-gradient position-relative" style="width: 500px;">
+                <div class="card-header bg-primary-color text-white">Imagens Câmera</div>
+                <div class="card-body position-relative" style="height: 250px; overflow: auto; padding:0px;">
+                    <?php echo "<img src='api/images/webcam.jpg?id=".time()."' style='width:100%'>"; ?>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script src="script.js"></script>
