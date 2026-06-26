@@ -200,7 +200,7 @@ if ($_SESSION['username'] == "admin") {
             <div class="card mt-4 border-primary-color bg-linear-gradient position-relative" style="width: 500px;">
                 <div class="card-header bg-primary-color text-white">Imagens Câmera</div>
                 <div class="card-body position-relative" style="height: 250px; overflow: auto; padding:0px;">
-                    <?php echo "<img src='api/images/webcam.jpg?id=".time()."' style='width:100%'>"; ?>
+                    <?php echo "<img src='api/images/webcam.jpg?id=".time()."' style='width:100%' alt='webcamImg'>"; ?>
                 </div>
             </div>
         </div>
@@ -211,6 +211,4 @@ if ($_SESSION['username'] == "admin") {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
-
 </html>
-```

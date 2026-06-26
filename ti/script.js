@@ -352,13 +352,3 @@ loadPriorityState()
 setInterval(() => {
     refreshInfo()
 }, 3000)
-
-
-
-
-
-
-
-
-
-
